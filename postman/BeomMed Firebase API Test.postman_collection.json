@@ -1,0 +1,1341 @@
+{
+	"info": {
+		"_postman_id": "beommed-firebase-api-test",
+		"name": "BeomMed Firebase API Test",
+		"description": "Collection untuk testing Firebase REST API yang digunakan oleh BeomMed - Sistem Pengingat Obat",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Sign Up with Email/Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have user data', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('localId');",
+									"    pm.expect(responseJson).to.have.property('email');",
+									"    pm.expect(responseJson).to.have.property('idToken');",
+									"    pm.environment.set('userToken', responseJson.idToken);",
+									"    pm.environment.set('userId', responseJson.localId);",
+									"});",
+									"",
+									"pm.test('Email should match request', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.email).to.eql(pm.environment.get('testEmail'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{testEmail}}\",\n    \"password\": \"{{testPassword}}\",\n    \"returnSecureToken\": true\n}"
+						},
+						"url": {
+							"raw": "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={{firebaseApiKey}}",
+							"protocol": "https",
+							"host": [
+								"identitytoolkit",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"accounts:signUp"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{firebaseApiKey}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Sign In with Email/Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have authentication data', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('localId');",
+									"    pm.expect(responseJson).to.have.property('email');",
+									"    pm.expect(responseJson).to.have.property('idToken');",
+									"    pm.expect(responseJson).to.have.property('refreshToken');",
+									"    pm.environment.set('userToken', responseJson.idToken);",
+									"    pm.environment.set('userId', responseJson.localId);",
+									"    pm.environment.set('refreshToken', responseJson.refreshToken);",
+									"});",
+									"",
+									"pm.test('Email should match request', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.email).to.eql(pm.environment.get('loginEmail'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{loginEmail}}\",\n    \"password\": \"{{loginPassword}}\",\n    \"returnSecureToken\": true\n}"
+						},
+						"url": {
+							"raw": "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={{firebaseApiKey}}",
+							"protocol": "https",
+							"host": [
+								"identitytoolkit",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"accounts:signInWithPassword"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{firebaseApiKey}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User Info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have users array', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('users');",
+									"    pm.expect(responseJson.users).to.be.an('array');",
+									"    pm.expect(responseJson.users.length).to.be.greaterThan(0);",
+									"});",
+									"",
+									"pm.test('User should have required properties', () => {",
+									"    const responseJson = pm.response.json();",
+									"    const user = responseJson.users[0];",
+									"    pm.expect(user).to.have.property('localId');",
+									"    pm.expect(user).to.have.property('email');",
+									"    pm.expect(user).to.have.property('emailVerified');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idToken\": \"{{userToken}}\"\n}"
+						},
+						"url": {
+							"raw": "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={{firebaseApiKey}}",
+							"protocol": "https",
+							"host": [
+								"identitytoolkit",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"accounts:lookup"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{firebaseApiKey}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Firestore Database",
+			"item": [
+				{
+					"name": "Create User Document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have document data', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('name');",
+									"    pm.expect(responseJson).to.have.property('fields');",
+									"});",
+									"",
+									"pm.test('Document should have user fields', () => {",
+									"    const responseJson = pm.response.json();",
+									"    const fields = responseJson.fields;",
+									"    pm.expect(fields).to.have.property('name');",
+									"    pm.expect(fields).to.have.property('email');",
+									"    pm.expect(fields).to.have.property('role');",
+									"    pm.expect(fields).to.have.property('createdAt');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": {\n        \"name\": {\n            \"stringValue\": \"{{testName}}\"\n        },\n        \"email\": {\n            \"stringValue\": \"{{testEmail}}\"\n        },\n        \"role\": {\n            \"stringValue\": \"{{testRole}}\"\n        },\n        \"createdAt\": {\n            \"timestampValue\": \"{{currentTimestamp}}\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/users/{{userId}}",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"users",
+								"{{userId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have documents array', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('documents');",
+									"    pm.expect(responseJson.documents).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/users",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"users"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Patient Document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have document data', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('name');",
+									"    pm.expect(responseJson).to.have.property('fields');",
+									"    ",
+									"    // Extract document ID from name field",
+									"    const documentPath = responseJson.name;",
+									"    const patientId = documentPath.split('/').pop();",
+									"    pm.environment.set('patientId', patientId);",
+									"});",
+									"",
+									"pm.test('Document should have patient fields', () => {",
+									"    const responseJson = pm.response.json();",
+									"    const fields = responseJson.fields;",
+									"    pm.expect(fields).to.have.property('name');",
+									"    pm.expect(fields).to.have.property('age');",
+									"    pm.expect(fields).to.have.property('gender');",
+									"    pm.expect(fields).to.have.property('email');",
+									"    pm.expect(fields).to.have.property('phone');",
+									"    pm.expect(fields).to.have.property('condition');",
+									"    pm.expect(fields).to.have.property('doctorId');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": {\n        \"name\": {\n            \"stringValue\": \"{{patientName}}\"\n        },\n        \"age\": {\n            \"integerValue\": \"{{patientAge}}\"\n        },\n        \"gender\": {\n            \"stringValue\": \"{{patientGender}}\"\n        },\n        \"email\": {\n            \"stringValue\": \"{{patientEmail}}\"\n        },\n        \"phone\": {\n            \"stringValue\": \"{{patientPhone}}\"\n        },\n        \"condition\": {\n            \"stringValue\": \"{{patientCondition}}\"\n        },\n        \"doctorId\": {\n            \"stringValue\": \"{{userId}}\"\n        },\n        \"allergies\": {\n            \"arrayValue\": {\n                \"values\": [\n                    {\n                        \"stringValue\": \"Penicillin\"\n                    },\n                    {\n                        \"stringValue\": \"Sulfa\"\n                    }\n                ]\n            }\n        },\n        \"emergencyContact\": {\n            \"stringValue\": \"{{patientEmergencyContact}}\"\n        },\n        \"address\": {\n            \"stringValue\": \"{{patientAddress}}\"\n        },\n        \"createdAt\": {\n            \"timestampValue\": \"{{currentTimestamp}}\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/patients",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"patients"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Patients",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have documents array', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('documents');",
+									"    pm.expect(responseJson.documents).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Documents should have patient data', () => {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.documents && responseJson.documents.length > 0) {",
+									"        const patient = responseJson.documents[0];",
+									"        pm.expect(patient).to.have.property('fields');",
+									"        pm.expect(patient.fields).to.have.property('name');",
+									"        pm.expect(patient.fields).to.have.property('email');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/patients",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"patients"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Patient by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have patient document', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('name');",
+									"    pm.expect(responseJson).to.have.property('fields');",
+									"});",
+									"",
+									"pm.test('Patient should have required fields', () => {",
+									"    const responseJson = pm.response.json();",
+									"    const fields = responseJson.fields;",
+									"    pm.expect(fields).to.have.property('name');",
+									"    pm.expect(fields).to.have.property('email');",
+									"    pm.expect(fields).to.have.property('condition');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/patients/{{patientId}}",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"patients",
+								"{{patientId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Patient Document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have updated document', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('name');",
+									"    pm.expect(responseJson).to.have.property('fields');",
+									"});",
+									"",
+									"pm.test('Patient name should be updated', () => {",
+									"    const responseJson = pm.response.json();",
+									"    const fields = responseJson.fields;",
+									"    pm.expect(fields.name.stringValue).to.eql(pm.environment.get('updatedPatientName'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": {\n        \"name\": {\n            \"stringValue\": \"{{updatedPatientName}}\"\n        },\n        \"age\": {\n            \"integerValue\": \"{{updatedPatientAge}}\"\n        },\n        \"condition\": {\n            \"stringValue\": \"{{updatedPatientCondition}}\"\n        },\n        \"phone\": {\n            \"stringValue\": \"{{updatedPatientPhone}}\"\n        },\n        \"address\": {\n            \"stringValue\": \"{{updatedPatientAddress}}\"\n        },\n        \"updatedAt\": {\n            \"timestampValue\": \"{{currentTimestamp}}\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/patients/{{patientId}}",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"patients",
+								"{{patientId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Patient Document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Document should be deleted', () => {",
+									"    // Empty response body indicates successful deletion",
+									"    pm.expect(pm.response.text()).to.be.empty;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/patients/{{patientId}}",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"patients",
+								"{{patientId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Doctor Document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have document data', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('name');",
+									"    pm.expect(responseJson).to.have.property('fields');",
+									"    ",
+									"    // Extract document ID from name field",
+									"    const documentPath = responseJson.name;",
+									"    const doctorId = documentPath.split('/').pop();",
+									"    pm.environment.set('doctorId', doctorId);",
+									"});",
+									"",
+									"pm.test('Document should have doctor fields', () => {",
+									"    const responseJson = pm.response.json();",
+									"    const fields = responseJson.fields;",
+									"    pm.expect(fields).to.have.property('name');",
+									"    pm.expect(fields).to.have.property('email');",
+									"    pm.expect(fields).to.have.property('specialization');",
+									"    pm.expect(fields).to.have.property('sip');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": {\n        \"name\": {\n            \"stringValue\": \"{{doctorName}}\"\n        },\n        \"email\": {\n            \"stringValue\": \"{{doctorEmail}}\"\n        },\n        \"specialization\": {\n            \"stringValue\": \"{{doctorSpecialization}}\"\n        },\n        \"sip\": {\n            \"stringValue\": \"{{doctorSip}}\"\n        },\n        \"phone\": {\n            \"stringValue\": \"{{doctorPhone}}\"\n        },\n        \"address\": {\n            \"stringValue\": \"{{doctorAddress}}\"\n        },\n        \"hospital\": {\n            \"stringValue\": \"{{doctorHospital}}\"\n        },\n        \"experience\": {\n            \"integerValue\": \"{{doctorExperience}}\"\n        },\n        \"createdAt\": {\n            \"timestampValue\": \"{{currentTimestamp}}\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/doctors",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"doctors"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Doctors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have documents array', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('documents');",
+									"    pm.expect(responseJson.documents).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/doctors",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"doctors"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Medication Schedule",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have document data', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('name');",
+									"    pm.expect(responseJson).to.have.property('fields');",
+									"    ",
+									"    // Extract document ID from name field",
+									"    const documentPath = responseJson.name;",
+									"    const scheduleId = documentPath.split('/').pop();",
+									"    pm.environment.set('scheduleId', scheduleId);",
+									"});",
+									"",
+									"pm.test('Document should have schedule fields', () => {",
+									"    const responseJson = pm.response.json();",
+									"    const fields = responseJson.fields;",
+									"    pm.expect(fields).to.have.property('patientId');",
+									"    pm.expect(fields).to.have.property('medicationName');",
+									"    pm.expect(fields).to.have.property('dosage');",
+									"    pm.expect(fields).to.have.property('frequency');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": {\n        \"patientId\": {\n            \"stringValue\": \"{{patientId}}\"\n        },\n        \"patientName\": {\n            \"stringValue\": \"{{patientName}}\"\n        },\n        \"medicationName\": {\n            \"stringValue\": \"{{medicationName}}\"\n        },\n        \"dosage\": {\n            \"stringValue\": \"{{medicationDosage}}\"\n        },\n        \"frequency\": {\n            \"stringValue\": \"{{medicationFrequency}}\"\n        },\n        \"times\": {\n            \"arrayValue\": {\n                \"values\": [\n                    {\n                        \"stringValue\": \"08:00\"\n                    },\n                    {\n                        \"stringValue\": \"20:00\"\n                    }\n                ]\n            }\n        },\n        \"startDate\": {\n            \"timestampValue\": \"{{scheduleStartDate}}\"\n        },\n        \"endDate\": {\n            \"timestampValue\": \"{{scheduleEndDate}}\"\n        },\n        \"prescribedBy\": {\n            \"stringValue\": \"{{userId}}\"\n        },\n        \"prescribedByName\": {\n            \"stringValue\": \"{{testName}}\"\n        },\n        \"instructions\": {\n            \"stringValue\": \"{{medicationInstructions}}\"\n        },\n        \"notes\": {\n            \"stringValue\": \"{{medicationNotes}}\"\n        },\n        \"isActive\": {\n            \"booleanValue\": true\n        },\n        \"createdAt\": {\n            \"timestampValue\": \"{{currentTimestamp}}\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/medication_schedules",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"medication_schedules"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Medication Schedules",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have documents array', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('documents');",
+									"    pm.expect(responseJson.documents).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/medication_schedules",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"medication_schedules"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Consumption Record",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have document data', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('name');",
+									"    pm.expect(responseJson).to.have.property('fields');",
+									"    ",
+									"    // Extract document ID from name field",
+									"    const documentPath = responseJson.name;",
+									"    const recordId = documentPath.split('/').pop();",
+									"    pm.environment.set('recordId', recordId);",
+									"});",
+									"",
+									"pm.test('Document should have consumption fields', () => {",
+									"    const responseJson = pm.response.json();",
+									"    const fields = responseJson.fields;",
+									"    pm.expect(fields).to.have.property('patientId');",
+									"    pm.expect(fields).to.have.property('medicationName');",
+									"    pm.expect(fields).to.have.property('status');",
+									"    pm.expect(fields).to.have.property('scheduledDateTime');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": {\n        \"patientId\": {\n            \"stringValue\": \"{{patientId}}\"\n        },\n        \"patientName\": {\n            \"stringValue\": \"{{patientName}}\"\n        },\n        \"medicationName\": {\n            \"stringValue\": \"{{medicationName}}\"\n        },\n        \"scheduleId\": {\n            \"stringValue\": \"{{scheduleId}}\"\n        },\n        \"scheduledDate\": {\n            \"timestampValue\": \"{{currentTimestamp}}\"\n        },\n        \"scheduledTime\": {\n            \"stringValue\": \"08:00\"\n        },\n        \"scheduledDateTime\": {\n            \"timestampValue\": \"{{currentTimestamp}}\"\n        },\n        \"dosage\": {\n            \"stringValue\": \"{{medicationDosage}}\"\n        },\n        \"status\": {\n            \"stringValue\": \"pending\"\n        },\n        \"notes\": {\n            \"stringValue\": \"\"\n        },\n        \"sideEffectsReported\": {\n            \"arrayValue\": {\n                \"values\": []\n            }\n        },\n        \"recordedBy\": {\n            \"stringValue\": \"system\"\n        },\n        \"createdAt\": {\n            \"timestampValue\": \"{{currentTimestamp}}\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/consumption_records",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"consumption_records"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Consumption Records",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have documents array', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('documents');",
+									"    pm.expect(responseJson.documents).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/consumption_records",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"consumption_records"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Consumption Record Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have updated document', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('name');",
+									"    pm.expect(responseJson).to.have.property('fields');",
+									"});",
+									"",
+									"pm.test('Status should be updated', () => {",
+									"    const responseJson = pm.response.json();",
+									"    const fields = responseJson.fields;",
+									"    pm.expect(fields.status.stringValue).to.eql('taken');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fields\": {\n        \"status\": {\n            \"stringValue\": \"taken\"\n        },\n        \"actualTime\": {\n            \"timestampValue\": \"{{currentTimestamp}}\"\n        },\n        \"notes\": {\n            \"stringValue\": \"{{consumptionNotes}}\"\n        },\n        \"updatedAt\": {\n            \"timestampValue\": \"{{currentTimestamp}}\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents/consumption_records/{{recordId}}",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents",
+								"consumption_records",
+								"{{recordId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Firestore Queries",
+			"item": [
+				{
+					"name": "Query Patients by Doctor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have documents array', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('documents');",
+									"    pm.expect(responseJson.documents).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('All patients should belong to the doctor', () => {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.documents && responseJson.documents.length > 0) {",
+									"        responseJson.documents.forEach(doc => {",
+									"            const doctorId = doc.fields.doctorId.stringValue;",
+									"            pm.expect(doctorId).to.eql(pm.environment.get('userId'));",
+									"        });",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"structuredQuery\": {\n        \"from\": [\n            {\n                \"collectionId\": \"patients\"\n            }\n        ],\n        \"where\": {\n            \"fieldFilter\": {\n                \"field\": {\n                    \"fieldPath\": \"doctorId\"\n                },\n                \"op\": \"EQUAL\",\n                \"value\": {\n                    \"stringValue\": \"{{userId}}\"\n                }\n            }\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents:runQuery",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents:runQuery"
+							]
+						}
+					}
+				},
+				{
+					"name": "Query Active Medication Schedules",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have documents array', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('All schedules should be active', () => {",
+									"    const responseJson = pm.response.json();",
+									"    responseJson.forEach(result => {",
+									"        if (result.document) {",
+									"            const isActive = result.document.fields.isActive.booleanValue;",
+									"            pm.expect(isActive).to.be.true;",
+									"        }",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"structuredQuery\": {\n        \"from\": [\n            {\n                \"collectionId\": \"medication_schedules\"\n            }\n        ],\n        \"where\": {\n            \"fieldFilter\": {\n                \"field\": {\n                    \"fieldPath\": \"isActive\"\n                },\n                \"op\": \"EQUAL\",\n                \"value\": {\n                    \"booleanValue\": true\n                }\n            }\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents:runQuery",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents:runQuery"
+							]
+						}
+					}
+				},
+				{
+					"name": "Query Consumption Records by Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response should have documents array', () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('All records should have taken status', () => {",
+									"    const responseJson = pm.response.json();",
+									"    responseJson.forEach(result => {",
+									"        if (result.document) {",
+									"            const status = result.document.fields.status.stringValue;",
+									"            pm.expect(status).to.eql('taken');",
+									"        }",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"structuredQuery\": {\n        \"from\": [\n            {\n                \"collectionId\": \"consumption_records\"\n            }\n        ],\n        \"where\": {\n            \"fieldFilter\": {\n                \"field\": {\n                    \"fieldPath\": \"status\"\n                },\n                \"op\": \"EQUAL\",\n                \"value\": {\n                    \"stringValue\": \"taken\"\n                }\n            }\n        },\n        \"limit\": 10\n    }\n}"
+						},
+						"url": {
+							"raw": "https://firestore.googleapis.com/v1/projects/{{firebaseProjectId}}/databases/(default)/documents:runQuery",
+							"protocol": "https",
+							"host": [
+								"firestore",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v1",
+								"projects",
+								"{{firebaseProjectId}}",
+								"databases",
+								"(default)",
+								"documents:runQuery"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Webhook Testing",
+			"item": [
+				{
+					"name": "Test Webhook Endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code should be 200 or 201', () => {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"",
+									"pm.test('Webhook should accept the payload', () => {",
+									"    // Webhook might return different responses",
+									"    // Just check that it doesn't return an error",
+									"    pm.expect(pm.response.code).to.not.be.oneOf([400, 401, 403, 404, 500]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"action\": \"create\",\n    \"collection\": \"medication_schedules\",\n    \"documentId\": \"{{scheduleId}}\",\n    \"data\": {\n        \"patientName\": \"{{patientName}}\",\n        \"medicationName\": \"{{medicationName}}\",\n        \"dosage\": \"{{medicationDosage}}\",\n        \"frequency\": \"{{medicationFrequency}}\",\n        \"prescribedByName\": \"{{testName}}\",\n        \"isActive\": true,\n        \"createdAt\": \"{{currentTimestamp}}\"\n    },\n    \"userId\": \"{{userId}}\",\n    \"userRole\": \"{{testRole}}\",\n    \"userName\": \"{{testName}}\",\n    \"source\": \"BeomMed System\",\n    \"environment\": \"testing\",\n    \"timestamp\": \"{{currentTimestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{webhookUrl}}",
+							"host": [
+								"{{webhookUrl}}"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set current timestamp for all requests",
+					"pm.environment.set('currentTimestamp', new Date().toISOString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test to check response time",
+					"pm.test('Response time is less than 10000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "firebaseProjectId",
+			"value": "beom-med3",
+			"type": "string"
+		},
+		{
+			"key": "firebaseApiKey",
+			"value": "AIzaSyBitEyfk94YWrBEpldyf_ru74dTmq9AOmI",
+			"type": "string"
+		},
+		{
+			"key": "webhookUrl",
+			"value": "https://n8n-jowjjemi.ap-southeast-1.clawcloudrun.com/webhook-test/15367c88-2160-46ad-8320-48b85b088858",
+			"type": "string"
+		}
+	]
+}
